@@ -1,0 +1,398 @@
+
+Ecu_B:
+  Os:
+    MainApp:
+      DefinitionRef: OsAppMode
+    OsOS:
+      OsStackMonitoring: true
+      OsStatus: EXTENDED
+      OsUseGetServiceId: true
+      OsUseParameterAccess: true
+      OsScalabilityClass: SC1
+      OsHooks:
+        OsErrorHook: true
+        OsProtectionHook: true
+        OsPreTaskHook: false
+        OsPostTaskHook: false
+        OsStartupHook: true
+        OsShutdownHook: false
+      OsHookStack:
+        OsHookStackSize: 1024
+      OsOsStack:
+        OsOsStackSize: 8192
+    ECU_B_TASK_125us:
+      DefinitionRef: OsTask
+      OsTaskActivation: 1
+      OsTaskPriority: 11
+      OsTaskStackSize: 1024
+      OsTaskSchedule: FULL
+    ECU_B_TASK_100ms:
+      DefinitionRef: OsTask
+      OsTaskActivation: 1
+      OsTaskPriority: 10
+      OsTaskStackSize: 1024
+      OsTaskSchedule: FULL
+    ECU_INIT_TASK:
+      DefinitionRef: OsTask
+      OsTaskActivation: 1
+      OsTaskPriority: 15
+      OsTaskStackSize: 1024
+      OsTaskSchedule: FULL
+      OsTaskAutostart:
+        OsTaskAppModeRef: /Ecu_B/Os/MainApp
+    ECU_B_SCHM_TASK:
+      DefinitionRef: OsTask
+      OsTaskActivation: 1
+      OsTaskPriority: 15
+      OsTaskStackSize: 1024
+      OsTaskSchedule: FULL
+    OsInclude:
+      OsIncludeFileName: Can_Target.h
+    C2ISR_FOR_CAN_RX0:
+      DefinitionRef: OsIsr
+      OsIsrInterruptPriority: 2
+      OsIsrInterruptNumber: 17 #CAN_RX0
+      OsIsrCategory: CATEGORY_2
+    ECU_B_ALARM_125us:
+      DefinitionRef: OsAlarm
+      OsAlarmCounterRef: /Ecuc/Os/MAIN_HW_COUNTER
+      OsAlarmAction:
+        OsAlarmActivateTask:
+          OsAlarmActivateTaskRef: /Ecu_B/Os/ECU_B_TASK_125us
+    ECU_B_ALARM_100ms:
+      DefinitionRef: OsAlarm
+      OsAlarmCounterRef: /Ecuc/Os/MAIN_HW_COUNTER
+      OsAlarmAction:
+        OsAlarmActivateTask:
+          OsAlarmActivateTaskRef: /Ecu_B/Os/ECU_B_TASK_100ms
+    ECU_B_ALARM_20ms_SCHM:
+      DefinitionRef: OsAlarm
+      OsAlarmCounterRef: /Ecuc/Os/MAIN_HW_COUNTER
+      OsAlarmAction:
+        OsAlarmActivateTask:
+          OsAlarmActivateTaskRef: /Ecu_B/Os/ECU_B_SCHM_TASK
+  Rte:
+    RteGeneration:
+      RteCodeVendorId: 65
+      RteCalibrationSupport: NONE
+      RteDevErrorDetect: true
+      RteDevErrorDetectUninit: true
+      RteGenerationMode: COMPATIBILITY_MODE
+      RteOptimizationMode: MEMORY
+      RteValueRangeCheckEnabled: false
+      RteVfbTraceEnabled: false
+    RteInitializationBehavior:
+      RteInitializationStrategy: RTE_INITIALIZATION_STRATEGY_AT_RTE_START_AND_PARTITION_RESTART
+      RteSectionInitializationPolicy: VALUE
+    SWCI_CddBodyControl:
+      DefinitionRef: RteSwComponentInstance
+      RteSoftwareComponentInstanceRef: /RcCar/Composition_RcCar/CddBodyControl
+      IB_CBC_TimingEvent_WinkerControl_100ms:
+        DefinitionRef: RteEventToTaskMapping
+        RteActivationOffset: 0.0
+        RtePositionInTask: 1
+        RteEventRef: /RcCar/CddBodyControl/IB_CBC/WinkerControl_timingEvent
+        RteMappedToTaskRef: /Ecu_B/Os/ECU_B_TASK_100ms
+        RteUsedOsAlarmRef: /Ecu_B/Os/ECU_B_ALARM_100ms
+      IB_CBC_TimingEvent_BuzzerControl_125us:
+        DefinitionRef: RteEventToTaskMapping
+        RteActivationOffset: 0.0
+        RtePositionInTask: 2
+        RteEventRef: /RcCar/CddBodyControl/IB_CBC/BuzzerControl_timingEvent
+        RteMappedToTaskRef: /Ecu_B/Os/ECU_B_TASK_125us
+        RteUsedOsAlarmRef: /Ecu_B/Os/ECU_B_ALARM_125us
+      IB_CBC_TimingEvent_LampControl_100ms:
+        DefinitionRef: RteEventToTaskMapping
+        RteActivationOffset: 0.0
+        RtePositionInTask: 3
+        RteEventRef: /RcCar/CddBodyControl/IB_CBC/LampControl_timingEvent
+        RteMappedToTaskRef: /Ecu_B/Os/ECU_B_TASK_100ms
+        RteUsedOsAlarmRef: /Ecu_B/Os/ECU_B_ALARM_100ms
+    SWCI_CddLedBlinker:
+      DefinitionRef: RteSwComponentInstance
+      RteSoftwareComponentInstanceRef: /RcCar/Composition_RcCar/CddLedBlinker
+      IB_CBL_TimingEvent_LedBlinker_500ms:
+        DefinitionRef: RteEventToTaskMapping
+        RteActivationOffset: 0.0
+        RtePositionInTask: 4
+        RteEventRef: /RcCar/CddLedBlinker/IB_CBL/LedBlinker_timingEvent
+        RteMappedToTaskRef: /Ecu_B/Os/ECU_B_TASK_100ms
+        RteUsedOsAlarmRef: /Ecu_B/Os/ECU_B_ALARM_100ms
+    RteOsInteraction:
+      RteUsedOsActivation_ECU_B_ALARM_125us:
+        DefinitionRef: RteUsedOsActivation
+        RteExpectedActivationOffset: 0.0
+        RteExpectedTickDuration: 0.000125
+        RteActivationOsAlarmRef: /Ecu_B/Os/ECU_B_ALARM_125us
+      RteUsedOsActivation_ECU_B_ALARM_20ms_SCHM:
+        DefinitionRef: RteUsedOsActivation
+        RteExpectedActivationOffset: 0.0
+        RteExpectedTickDuration: 0.02
+        RteActivationOsAlarmRef: /Ecu_B/Os/ECU_B_ALARM_20ms_SCHM
+      RteUsedOsActivation_ECU_B_ALARM_100ms:
+        DefinitionRef: RteUsedOsActivation
+        RteExpectedActivationOffset: 0.0
+        RteExpectedTickDuration: 0.1
+        RteActivationOsAlarmRef: /Ecu_B/Os/ECU_B_ALARM_100ms
+    RteBswModuleInstance_com:
+      DefinitionRef: RteBswModuleInstance
+      RteBswImplementationRef: /BSWScheduler/BswImplementations/bswImplementation0
+      RteBswExclusiveAreaImpl_exclusiveArea0:
+        DefinitionRef: RteBswExclusiveAreaImpl
+        RteExclusiveAreaImplMechanism: NONE
+        RteBswExclusiveAreaRef: /BSWScheduler/BswModuleDescriptions/Com/InternalBehavior_0/Reentrant_0
+      RteBswExclusiveAreaImpl_exclusiveArea1:
+        DefinitionRef: RteBswExclusiveAreaImpl
+        RteExclusiveAreaImplMechanism: NONE
+        RteBswExclusiveAreaRef: /BSWScheduler/BswModuleDescriptions/Com/InternalBehavior_0/Reentrant_1
+      RteBswExclusiveAreaImpl_exclusiveArea2:
+        DefinitionRef: RteBswExclusiveAreaImpl
+        RteExclusiveAreaImplMechanism: NONE
+        RteBswExclusiveAreaRef: /BSWScheduler/BswModuleDescriptions/Com/InternalBehavior_0/Reentrant_2
+      RteBswEventToTaskMapping_timingEvent1:
+        DefinitionRef: RteBswEventToTaskMapping
+        RteBswPositionInTask: 0
+        RteBswActivationOffset: 0.02
+        RteBswEventRef: /BSWScheduler/BswModuleDescriptions/Com/InternalBehavior_0/TimingEvent_MainFunctionRx
+        RteBswMappedToTaskRef: /Ecu_B/Os/ECU_B_SCHM_TASK
+        RteBswUsedOsAlarmRef: /Ecu_B/Os/ECU_B_ALARM_20ms_SCHM
+    RteBswModuleInstance_can:
+      DefinitionRef: RteBswModuleInstance
+      RteBswImplementationRef: /BSWScheduler/BswImplementations/bswImplementation1
+      RteBswExclusiveAreaImpl_exclusiveArea3:
+        DefinitionRef: RteBswExclusiveAreaImpl
+        RteExclusiveAreaImplMechanism: NONE
+        RteBswExclusiveAreaRef: /BSWScheduler/BswModuleDescriptions/Can/InternalBehavior_0/Reentrant
+    RteBswModuleInstance_canif:
+      DefinitionRef: RteBswModuleInstance
+      RteBswImplementationRef: /BSWScheduler/BswImplementations/bswImplementation2
+      RteBswExclusiveAreaImpl_exclusiveArea4:
+        DefinitionRef: RteBswExclusiveAreaImpl
+        RteExclusiveAreaImplMechanism: NONE
+        RteBswExclusiveAreaRef: /BSWScheduler/BswModuleDescriptions/CanIf/InternalBehavior_0/Reentrant_0
+      RteBswExclusiveAreaImpl_exclusiveArea5:
+        DefinitionRef: RteBswExclusiveAreaImpl
+        RteExclusiveAreaImplMechanism: NONE
+        RteBswExclusiveAreaRef: /BSWScheduler/BswModuleDescriptions/CanIf/InternalBehavior_0/Reentrant_1
+    RteBswGeneral:
+      RteSchMVersionInfoApi: true
+      RteUseComShadowSignalApi: false
+  EcuC:
+    EcucPduCollection:
+      PduIdTypeEnum: UINT16
+      PduLengthTypeEnum: UINT32
+      Pdu0:
+        DefinitionRef: Pdu
+        PduLength: 8
+  EcuM:
+    EcuMConfiguration0:
+      DefinitionRef: EcuMConfiguration
+      EcuMCommonConfiguration0:
+        DefinitionRef: EcuMCommonConfiguration
+        EcuMWakeupSource0:
+          DefinitionRef: EcuMWakeupSource
+          EcuMWakeupSourceId: 0
+          EcuMWakeupSourcePolling: false
+  Com:
+    ComConfig:
+      ComConfigurationId: 0
+      ComSignal0:
+        DefinitionRef: ComSignal
+        ComHandleId: 0
+        ComBitPosition: 0
+        ComBitSize: 8
+        ComSignalType: UINT8
+        ComSignalEndianness: LITTLE_ENDIAN
+        ComSystemTemplateSystemSignalRef: /Network/Ecu_B/ISignalIPdu_WinkerIn/iSignalToIPduMapping_WinkerIn_state
+      ComSignal1:
+        DefinitionRef: ComSignal
+        ComHandleId: 1
+        ComBitPosition: 8
+        ComBitSize: 8
+        ComSignalType: UINT8
+        ComSignalEndianness: LITTLE_ENDIAN
+        ComSystemTemplateSystemSignalRef: /Network/Ecu_B/ISignalIPdu_BuzzerIn/iSignalToIPduMapping_BuzzerIn_state
+      ComSignal2:
+        DefinitionRef: ComSignal
+        ComHandleId: 2
+        ComBitPosition: 16
+        ComBitSize: 1
+        ComSignalType: BOOLEAN
+        ComSignalEndianness: LITTLE_ENDIAN
+        ComSystemTemplateSystemSignalRef: /Network/Ecu_B/ISignalIPdu_LampIn/iSignalToIPduMapping_LampIn_headlamp
+      ComSignal3:
+        DefinitionRef: ComSignal
+        ComHandleId: 3
+        ComBitPosition: 17
+        ComBitSize: 1
+        ComSignalType: BOOLEAN
+        ComSignalEndianness: LITTLE_ENDIAN
+        ComSystemTemplateSystemSignalRef: /Network/Ecu_B/ISignalIPdu_LampIn/iSignalToIPduMapping_LampIn_foglamp
+      ComSignal4:
+        DefinitionRef: ComSignal
+        ComHandleId: 4
+        ComBitPosition: 18
+        ComBitSize: 1
+        ComSignalType: BOOLEAN
+        ComSignalEndianness: LITTLE_ENDIAN
+        ComSystemTemplateSystemSignalRef: /Network/Ecu_B/ISignalIPdu_LampIn/iSignalToIPduMapping_LampIn_brakelamp
+      ComSignal5:
+        DefinitionRef: ComSignal
+        ComHandleId: 5
+        ComBitPosition: 19
+        ComBitSize: 1
+        ComSignalType: BOOLEAN
+        ComSignalEndianness: LITTLE_ENDIAN
+        ComSystemTemplateSystemSignalRef: /Network/Ecu_B/ISignalIPdu_LampIn/iSignalToIPduMapping_LampIn_backlamp
+      ComIPduGroup0:
+        DefinitionRef: ComIPduGroup
+        ComIPduGroupHandleId: 0
+      ComIPdu0:
+        DefinitionRef: ComIPdu
+        ComIPduHandleId: 0
+        ComIPduDirection: RECEIVE
+        ComIPduSignalProcessing: IMMEDIATE
+        ComIPduType: NORMAL
+        ComIPduGroupRef: /Ecu_B/Com/ComConfig/ComIPduGroup0
+        ComIPduSignalRef:
+          - /Ecu_B/Com/ComConfig/ComSignal0
+          - /Ecu_B/Com/ComConfig/ComSignal1
+          - /Ecu_B/Com/ComConfig/ComSignal2
+          - /Ecu_B/Com/ComConfig/ComSignal3
+          - /Ecu_B/Com/ComConfig/ComSignal4
+          - /Ecu_B/Com/ComConfig/ComSignal5
+        ComPduIdRef: /Ecu_B/EcuC/EcucPduCollection/Pdu0
+      ComTimeBase:
+        ComGwTimeBase: 0.02
+        ComRxTimeBase: 0.02
+        ComTxTimeBase: 0.02
+    ComGeneral:
+      ComSupportedIPduGroups: 1
+      ComVersionInfoApi: false
+      ComConfigurationUseDet: true
+  PduR:
+    PduRGeneral:
+      PduRZeroCostOperation: true
+      PduRDevErrorDetect: false
+      PduRVersionInfoApi: false
+    PduRRoutingTables:
+      PduRConfigurationId: 0
+      PduRRoutingTable:
+        PduRIsMinimumRouting: false
+        PduRRoutingPath_0:
+          DefinitionRef: PduRRoutingPath
+          PduRSrcPdu0:
+            DefinitionRef: PduRSrcPdu
+            PduRSourcePduHandleId: 0
+            PduRSrcPduRef: /Ecu_B/EcuC/EcucPduCollection/Pdu0
+          PduRDestPdu0:
+            DefinitionRef: PduRDestPdu
+            PduRDestPduRef: /Ecu_B/EcuC/EcucPduCollection/Pdu0
+  CanIf:
+    CanIfPublicCfg:
+      CanIfPublicNumberOfCanHwUnits: 1
+      CanIfPublicCancelTransmitSupport: true
+      CanIfPublicChangeBaudrateSupport: true
+      CanIfPublicDevErrorDetect: true
+      CanIfPublicHandleTypeEnum: UINT8
+      CanIfPublicMultipleDrvSupport: false
+      CanIfPublicPnSupport: false
+      CanIfPublicReadRxPduDataApi: true
+      CanIfPublicReadRxPduNotifyStatusApi: true
+      CanIfPublicReadTxPduNotifyStatusApi: true
+      CanIfPublicSetDynamicTxIdApi: false
+      CanIfPublicTxBuffering: false
+      CanIfPublicTxConfirmPollingSupport: true
+      CanIfPublicVersionInfoApi: false
+      CanIfPublicWakeupCheckValidSupport: true
+    CanIfPrivateCfg:
+      CanIfPrivateDlcCheck: true
+      CanIfSupportTTCAN: false
+    CanIfDispatchCfg:
+      CanIfDispatchUserCtrlBusOffName: CanSM_ControllerBusOff
+      CanIfDispatchUserCtrlBusOffUL: CAN_SM
+      CanIfDispatchUserCtrlModeIndicationName: CanSM_ControllerModeIndication
+      CanIfDispatchUserCtrlModeIndicationUL: CAN_SM
+      CanIfDispatchUserValidateWakeupEventName: EcuM_ValidateWakeupEvent
+      CanIfDispatchUserValidateWakeupEventUL: ECUM
+    CanIfCtrlDrvCfg:
+      CanIfCtrlDrvTxCancellation: false
+      CanIfCtrlDrvInitHohConfigRef: /Ecu_B/CanIf/CanIfInitCfg/CanIfInitHohCfg
+      CanIfCtrlDrvNameRef: /Ecu_B/Can/CanGeneral
+      CanIfCtrlCfg0:
+        DefinitionRef: CanIfCtrlCfg
+        CanIfCtrlId: 0
+        CanIfCtrlWakeupSupport: true
+        CanIfCtrlCanCtrlRef: /Ecu_B/Can/CanConfigSet0/CanController0
+    CanIfInitCfg:
+      CanIfInitCfgSet: main_canif_config
+      CanIfInitHohCfg:
+        CanIfInitRefCfgSet: /Ecu_B/Can/CanConfigSet0
+        CanIfHrhCfg0:
+          DefinitionRef: CanIfHrhCfg
+          CanIfHrhSoftwareFilter: false
+          CanIfHrhCanCtrlIdRef: /Ecu_B/CanIf/CanIfCtrlDrvCfg/CanIfCtrlCfg0
+          CanIfHrhIdSymRef: /Ecu_B/Can/CanConfigSet0/CanHardwareObject0
+      CanIfRxPduCfg0:
+        DefinitionRef: CanIfRxPduCfg
+        CanIfRxPduCanId: 288
+        CanIfRxPduDlc: 8
+        CanIfRxPduId: 0
+        CanIfRxPduCanIdType: STANDARD_CAN
+        CanIfRxPduReadData: false
+        CanIfRxPduReadNotifyStatus: true
+        CanIfRxPduUserRxIndicationName: PduR_CanIfRxIndication
+        CanIfRxPduUserRxIndicationUL: PDUR
+        CanIfRxPduHrhIdRef: /Ecu_B/CanIf/CanIfInitCfg/CanIfInitHohCfg/CanIfHrhCfg0
+        CanIfRxPduRef: /Ecu_B/EcuC/EcucPduCollection/Pdu0
+  Can:
+    CanConfigSet0:
+      DefinitionRef: CanConfigSet
+      CanHardwareObject0:
+        DefinitionRef: CanHardwareObject
+        CanIdValue: 288
+        CanObjectId: 0
+        CanHandleType: FULL
+        CanObjectType: RECEIVE
+        CanIdType: STANDARD
+        CanControllerRef: /Ecu_B/Can/CanConfigSet0/CanController0
+      CanController0:
+        DefinitionRef: CanController
+        CanControllerId: 0
+        CanControllerBaseAddress: 0
+        CanBusoffProcessing: INTERRUPT
+        CanControllerActivation: false
+        CanRxProcessing: INTERRUPT
+        CanTxProcessing: INTERRUPT
+        CanWakeupProcessing: INTERRUPT
+        CanWakeupSupport: false
+        CanWakeupSourceRef: /Ecu_B/EcuM/EcuMConfiguration0/EcuMCommonConfiguration0/EcuMWakeupSource0
+        CanControllerDefaultBaudrate: /Ecu_B/Can/CanConfigSet0/CanController0/CanControllerBaudrateConfig_0
+        CanControllerBaudrateConfig_0:
+          DefinitionRef: CanControllerBaudrateConfig
+          CanControllerBaudRate: 500
+          CanControllerPropSeg: 0
+          CanControllerSeg1: 0
+          CanControllerSeg2: 255
+          CanControllerSyncJumpWidth: 0
+        CanControllerBaudrateConfig_1:
+          DefinitionRef: CanControllerBaudrateConfig
+          CanControllerBaudRate: 250
+          CanControllerPropSeg: 0
+          CanControllerSeg1: 0
+          CanControllerSeg2: 255
+          CanControllerSyncJumpWidth: 0
+    CanGeneral:
+      CanIndex: 0
+      CanMainFunctionModePeriod: 0.2
+      CanTimeoutDuration: 0.1
+      CanChangeBaudrateApi: true
+      CanDevErrorDetection: true
+      CanHardwareCancellation: false
+      CanIdenticalIdCancellation: false
+      CanMultiplexedTransmission: false
+      CanVersionInfoApi: true
+      CanSupportTTCANRef: /Ecu_B/CanIf/CanIfPrivateCfg
+      CanCounterRef: /Ecuc/Os/MAIN_HW_COUNTER
+      CanMainFunctionRWPeriods:
+        CanMainFunctionReadPeriod: 0.1

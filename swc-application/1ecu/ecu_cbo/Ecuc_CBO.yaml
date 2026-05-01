@@ -1,0 +1,211 @@
+
+Ecu_CBO:
+  Os:
+    MainApp:
+      DefinitionRef: OsAppMode
+    OsOS:
+      OsStackMonitoring: true
+      OsStatus: EXTENDED
+      OsUseGetServiceId: true
+      OsUseParameterAccess: true
+      OsScalabilityClass: SC1
+      OsHooks:
+        OsErrorHook: true
+        OsProtectionHook: true
+        OsPreTaskHook: false
+        OsPostTaskHook: false
+        OsStartupHook: true
+        OsShutdownHook: false
+      OsHookStack:
+        OsHookStackSize: 1024
+      OsOsStack:
+        OsOsStackSize: 8192
+    ECU_CBO_TASK_100ms:
+      DefinitionRef: OsTask
+      OsTaskActivation: 1
+      OsTaskPriority: 1
+      OsTaskStackSize: 1024
+      OsTaskSchedule: FULL
+    ECU_CBO_TASK_10ms:
+      DefinitionRef: OsTask
+      OsTaskActivation: 1
+      OsTaskPriority: 4
+      OsTaskStackSize: 1024
+      OsTaskSchedule: FULL
+    ECU_CBO_TASK_125us:
+      DefinitionRef: OsTask
+      OsTaskActivation: 1
+      OsTaskPriority: 3
+      OsTaskStackSize: 1024
+      OsTaskSchedule: FULL
+    ECU_INIT_TASK:
+      DefinitionRef: OsTask
+      OsTaskActivation: 1
+      OsTaskPriority: 15
+      OsTaskStackSize: 1024
+      OsTaskSchedule: FULL
+      OsTaskAutostart:
+        OsTaskAppModeRef: /Ecu_CBO/Os/MainApp
+    RLIN3x_RX_ISR:
+      DefinitionRef: OsIsr
+      OsIsrInterruptPriority: 2
+      OsIsrInterruptNumber: 158 #RLIN32_RX
+      OsIsrCategory: CATEGORY_2
+    ECU_CBO_ALARM_100ms:
+      DefinitionRef: OsAlarm
+      OsAlarmCounterRef: /Ecuc/Os/MAIN_HW_COUNTER
+      OsAlarmAction:
+        OsAlarmActivateTask:
+          OsAlarmActivateTaskRef: /Ecu_CBO/Os/ECU_CBO_TASK_100ms
+    ECU_CBO_ALARM_10ms:
+      DefinitionRef: OsAlarm
+      OsAlarmCounterRef: /Ecuc/Os/MAIN_HW_COUNTER
+      OsAlarmAction:
+        OsAlarmActivateTask:
+          OsAlarmActivateTaskRef: /Ecu_CBO/Os/ECU_CBO_TASK_10ms
+    ECU_CBO_ALARM_125us:
+      DefinitionRef: OsAlarm
+      OsAlarmCounterRef: /Ecuc/Os/MAIN_HW_COUNTER
+      OsAlarmAction:
+        OsAlarmActivateTask:
+          OsAlarmActivateTaskRef: /Ecu_CBO/Os/ECU_CBO_TASK_125us
+  Rte:
+    RteGeneration:
+      RteCodeVendorId: 65
+      RteCalibrationSupport: NONE
+      RteDevErrorDetect: true
+      RteDevErrorDetectUninit: true
+      RteGenerationMode: COMPATIBILITY_MODE
+      RteOptimizationMode: MEMORY
+      RteValueRangeCheckEnabled: false
+      RteVfbTraceEnabled: false
+    RteInitializationBehavior:
+      RteInitializationStrategy: RTE_INITIALIZATION_STRATEGY_AT_RTE_START_AND_PARTITION_RESTART
+      RteSectionInitializationPolicy: VALUE
+    SWCI_CddRcCar:
+      DefinitionRef: RteSwComponentInstance
+      RteSoftwareComponentInstanceRef: /RcCar/Composition_RcCar/CddRcCar
+      IB_CR_TimingEvent_PowerTrain_10ms:
+        DefinitionRef: RteEventToTaskMapping
+        RteActivationOffset: 0.0
+        RtePositionInTask: 1
+        RteEventRef: /RcCar/CddRcCar/IB_CR/PowerTrain_timingEvent
+        RteMappedToTaskRef: /Ecu_CBO/Os/ECU_CBO_TASK_10ms
+        RteUsedOsAlarmRef: /Ecu_CBO/Os/ECU_CBO_ALARM_10ms
+      SetSteerAngle:
+        DefinitionRef: RteEventToTaskMapping
+        RteEventRef: /RcCar/CddRcCar/IB_CR/AngleSrv_OpSetSteerAngle
+      SetDriveSpeed:
+        DefinitionRef: RteEventToTaskMapping
+        RteEventRef: /RcCar/CddRcCar/IB_CR/SpeedSrv_OpSetDriveSpeed
+      SetBrake:
+        DefinitionRef: RteEventToTaskMapping
+        RteEventRef: /RcCar/CddRcCar/IB_CR/BrakeSrv_OpSetBrake
+    SWCI_DriveManager:
+      DefinitionRef: RteSwComponentInstance
+      RteSoftwareComponentInstanceRef: /RcCar/Composition_RcCar/DriveManager
+      IB_DM_TimingEvent_DrivingControl_20ms:
+        DefinitionRef: RteEventToTaskMapping
+        RteActivationOffset: 0.0
+        RtePositionInTask: 2
+        RteEventRef: /RcCar/DriveManager/IB_DM/DrivingControl_timingEvent
+        RteMappedToTaskRef: /Ecu_CBO/Os/ECU_CBO_TASK_10ms
+        RteUsedOsAlarmRef: /Ecu_CBO/Os/ECU_CBO_ALARM_10ms
+      IB_DM_TimingEvent_BodyControl_20ms:
+        DefinitionRef: RteEventToTaskMapping
+        RteActivationOffset: 0.0
+        RtePositionInTask: 3
+        RteEventRef: /RcCar/DriveManager/IB_DM/BodyControl_timingEvent
+        RteMappedToTaskRef: /Ecu_CBO/Os/ECU_CBO_TASK_10ms
+        RteUsedOsAlarmRef: /Ecu_CBO/Os/ECU_CBO_ALARM_10ms
+    SWCI_CddBodyControl:
+      DefinitionRef: RteSwComponentInstance
+      RteSoftwareComponentInstanceRef: /RcCar/Composition_RcCar/CddBodyControl
+      IB_CBC_TimingEvent_WinkerControl_100ms:
+        DefinitionRef: RteEventToTaskMapping
+        RteActivationOffset: 0.0
+        RtePositionInTask: 6
+        RteEventRef: /RcCar/CddBodyControl/IB_CBC/WinkerControl_timingEvent
+        RteMappedToTaskRef: /Ecu_CBO/Os/ECU_CBO_TASK_100ms
+        RteUsedOsAlarmRef: /Ecu_CBO/Os/ECU_CBO_ALARM_100ms
+      IB_CBC_TimingEvent_BuzzerControl_125us:
+        DefinitionRef: RteEventToTaskMapping
+        RteActivationOffset: 0.0
+        RtePositionInTask: 7
+        RteEventRef: /RcCar/CddBodyControl/IB_CBC/BuzzerControl_timingEvent
+        RteMappedToTaskRef: /Ecu_CBO/Os/ECU_CBO_TASK_125us
+        RteUsedOsAlarmRef: /Ecu_CBO/Os/ECU_CBO_ALARM_125us
+      IB_CBC_TimingEvent_LampControl_100ms:
+        DefinitionRef: RteEventToTaskMapping
+        RteActivationOffset: 0.0
+        RtePositionInTask: 8
+        RteEventRef: /RcCar/CddBodyControl/IB_CBC/LampControl_timingEvent
+        RteMappedToTaskRef: /Ecu_CBO/Os/ECU_CBO_TASK_100ms
+        RteUsedOsAlarmRef: /Ecu_CBO/Os/ECU_CBO_ALARM_100ms
+    SWCI_OperationManager:
+      DefinitionRef: RteSwComponentInstance
+      RteSoftwareComponentInstanceRef: /RcCar/Composition_RcCar/OperationManager
+      IB_CM_TimingEvent_OperationControl_20ms:
+        DefinitionRef: RteEventToTaskMapping
+        RteActivationOffset: 0.0
+        RtePositionInTask: 4
+        RteEventRef: /RcCar/OperationManager/IB_CM/OperationControl_timingEvent
+        RteMappedToTaskRef: /Ecu_CBO/Os/ECU_CBO_TASK_10ms
+        RteUsedOsAlarmRef: /Ecu_CBO/Os/ECU_CBO_ALARM_10ms
+    SWCI_CddController:
+      DefinitionRef: RteSwComponentInstance
+      RteSoftwareComponentInstanceRef: /RcCar/Composition_RcCar/CddController
+      IB_CC_TimingEvent_MessageParser_10ms:
+        DefinitionRef: RteEventToTaskMapping
+        RteActivationOffset: 0.0
+        RtePositionInTask: 5
+        RteEventRef: /RcCar/CddController/IB_CC/MessageParser_timingEvent
+        RteMappedToTaskRef: /Ecu_CBO/Os/ECU_CBO_TASK_10ms
+        RteUsedOsAlarmRef: /Ecu_CBO/Os/ECU_CBO_ALARM_10ms
+      GetRCB3Command:
+        DefinitionRef: RteEventToTaskMapping
+        RteEventRef: /RcCar/CddController/IB_CC/RCB3CommandSrv_OpGetIfRCB3Command
+      SetRCB3CommandGotFlgExclusiveArea:
+        DefinitionRef: RteExclusiveAreaImplementation
+        RteExclusiveAreaImplMechanism: OS_INTERRUPT_BLOCKING
+        RteExclusiveAreaRef: /RcCar/CddController/IB_CC/EaRCB3CommandGotFlg
+      UartRxExclusiveArea:
+        DefinitionRef: RteExclusiveAreaImplementation
+        RteExclusiveAreaImplMechanism: OS_INTERRUPT_BLOCKING
+        RteExclusiveAreaRef: /RcCar/CddController/IB_CC/EaUartRx
+    SWCI_CddLedBlinker:
+      DefinitionRef: RteSwComponentInstance
+      RteSoftwareComponentInstanceRef: /RcCar/Composition_RcCar/CddLedBlinker
+      IB_CBL_TimingEvent_LedBlinker_500ms:
+        DefinitionRef: RteEventToTaskMapping
+        RteActivationOffset: 0.0
+        RtePositionInTask: 9
+        RteEventRef: /RcCar/CddLedBlinker/IB_CBL/LedBlinker_timingEvent
+        RteMappedToTaskRef: /Ecu_CBO/Os/ECU_CBO_TASK_100ms
+        RteUsedOsAlarmRef: /Ecu_CBO/Os/ECU_CBO_ALARM_100ms
+    RteOsInteraction:
+      RteUsedOsActivation1:
+        DefinitionRef: RteUsedOsActivation
+        RteExpectedActivationOffset: 0.0
+        RteExpectedTickDuration: 0.01
+        RteActivationOsAlarmRef: /Ecu_CBO/Os/ECU_CBO_ALARM_10ms
+      RteUsedOsActivation2:
+        DefinitionRef: RteUsedOsActivation
+        RteExpectedActivationOffset: 0.0
+        RteExpectedTickDuration: 0.000125
+        RteActivationOsAlarmRef: /Ecu_CBO/Os/ECU_CBO_ALARM_125us
+      RteUsedOsActivation3:
+        DefinitionRef: RteUsedOsActivation
+        RteExpectedActivationOffset: 0.0
+        RteExpectedTickDuration: 0.1
+        RteActivationOsAlarmRef: /Ecu_CBO/Os/ECU_CBO_ALARM_100ms
+    RteBswGeneral:
+      RteSchMVersionInfoApi: true
+      RteUseComShadowSignalApi: false
+  EcuC:
+    EcucPduCollection:
+      PduIdTypeEnum: UINT16
+      PduLengthTypeEnum: UINT32
+      Pdu0:
+        DefinitionRef: Pdu
+        PduLength: 8

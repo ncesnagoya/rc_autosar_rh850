@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="EUC-JP"?>
+<AUTOSAR xmlns="http://autosar.org/schema/r4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://autosar.org/schema/r4.0 AUTOSAR_4-0-3_STRICT.xsd">
+	<AR-PACKAGES>
+		<AR-PACKAGE>
+			<SHORT-NAME>System</SHORT-NAME>
+			<ELEMENTS>
+				<SYSTEM>
+					<SHORT-NAME>RcCar</SHORT-NAME>
+					<ROOT-SOFTWARE-COMPOSITIONS>
+						<ROOT-SW-COMPOSITION-PROTOTYPE>
+							<SHORT-NAME>RootSwCompositionPrototype</SHORT-NAME>
+							<SOFTWARE-COMPOSITION-TREF DEST="COMPOSITION-SW-COMPONENT-TYPE">/RcCar/Composition_RcCar</SOFTWARE-COMPOSITION-TREF>
+						</ROOT-SW-COMPOSITION-PROTOTYPE>
+					</ROOT-SOFTWARE-COMPOSITIONS>
+					<SYSTEM-VERSION>1.0.0</SYSTEM-VERSION>
+				</SYSTEM>
+			</ELEMENTS>
+		</AR-PACKAGE>
+	</AR-PACKAGES>
+</AUTOSAR>
